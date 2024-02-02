@@ -3,8 +3,8 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserLogin(BaseModel):
-    password: str = Field(max_length=255)
     user_name: str
+    password: str = Field(max_length=255)
 
 
 class UserDetails(UserLogin):
@@ -14,3 +14,4 @@ class UserDetails(UserLogin):
     phone: int
     city: str
     state: str
+    super_key: Optional[str] = None
