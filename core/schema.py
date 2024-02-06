@@ -15,3 +15,10 @@ class UserDetails(UserLogin):
     city: str
     state: str
     super_key: Optional[str] = None
+
+
+class BookSchema(BaseModel):
+    book_name: str
+    author: str
+    price: int
+    quantity: int

@@ -1,10 +1,10 @@
-from sanic import response, Blueprint, Request, HTTPResponse, exceptions
+from sanic import response, Blueprint, Request, HTTPResponse
 from sanic_ext import validate
 from sanic_ext.extensions.openapi import openapi
 from sanic_openapi import doc
 from sqlalchemy import select
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from core.model import User, engine
 from core.schema import UserDetails, UserLogin
 from core.utils import hash_password, verify_password, create_access_token, email_verification, decode_token, super_key
@@ -14,7 +14,7 @@ Base = declarative_base()
 app = Blueprint('user')
 
 
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 # Middleware to provide a database session to each request
@@ -31,7 +31,7 @@ async def close_session(request):
 
 @app.route('/register_user', methods=['POST'])
 @doc.summary("Add a user to the database.")
-@openapi.definition(body={'application/json': UserDetails.model_json_schema()})
+@openapi.definition(body={'application/json': UserDetails.model_json_schema()}, tag=["User"])
 @validate(json=UserDetails)
 async def add_user(request, body):
     """
@@ -61,7 +61,7 @@ async def add_user(request, body):
 
 
 @app.post('/login')
-@openapi.definition(body={'application/json': UserLogin.model_json_schema()})
+@openapi.definition(body={'application/json': UserLogin.model_json_schema()}, tag="User")
 @validate(UserLogin)
 async def login(request, body: UserLogin):
 
@@ -90,6 +90,7 @@ async def login(request, body: UserLogin):
 
 
 @app.get('/verify_user')
+@openapi.definition(tag="User")
 async def verify_user(request: Request) -> HTTPResponse:
     """
     Description: verify_user function is to validate the user.
