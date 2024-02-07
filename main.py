@@ -9,13 +9,10 @@
 
 @Title : Book Library
 """
-from sanic import Sanic, response
-
-from routes import user
-from routes.book import authorize, add_book, book_api
-# from routes.book import add_book, authorization
-from routes.user import add_user, login, verify_user, app as user_api
-# from sanic_jwt import Initialize
+from sanic import Sanic
+from routes.book import book_api
+from routes.cart import cart_api
+from routes.user import app as user_api
 
 
 app = Sanic('_name_')
@@ -33,5 +30,6 @@ app.ext.openapi.add_security_scheme(
 # app.add_route(add_book, '/book/register', methods=["Post"])
 app.blueprint(user_api)
 app.blueprint(book_api)
+app.blueprint(cart_api)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

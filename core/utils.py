@@ -16,7 +16,7 @@ Sender = sender
 Password = password
 super_key = super_key
 
-logging.basicConfig(filename='./fundoo_notes.log', encoding='utf-8', level=logging.DEBUG,
+logging.basicConfig(filename='./book_store.log', encoding='utf-8', level=logging.DEBUG,
                     format='%(asctime)s %(message)s', datefmt='%m/%d/%y %I:%M:%S %p')
 logger = logging.getLogger()
 
@@ -87,7 +87,7 @@ def email_verification(token: str, user_email):
     sender_email = Sender
     sender_password = Password
     subject = 'Email Verification'
-    body = f"Click the link to verify your email: http://127.0.0.1:8000/verify?token={token}"
+    body = f"Click the link to verify your email: http://127.0.0.1:8000/verify_user?token={token}"
     e_mail = EmailMessage()
     e_mail['From'] = sender_email
     e_mail['To'] = user_email

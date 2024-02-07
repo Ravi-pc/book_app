@@ -80,6 +80,9 @@ async def login(request, body: UserLogin):
                 # Password does not match
                 return response.json({'message': 'Invalid credentials'}, status=401)
 
+            if user.is_verified is False:
+                return response.json({'message': 'User Not Verified'}, status=401)
+
         token = create_access_token({'user_id': user.id})  # create access token
         # Successful login
         return response.json({'message': 'Login successful', 'token': token}, status=200, )

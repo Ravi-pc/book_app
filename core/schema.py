@@ -22,3 +22,8 @@ class BookSchema(BaseModel):
     author: str
     price: int
     quantity: int
+
+
+class CartItemsSchema(BaseModel):
+    book_id: int
+    quantity: int
