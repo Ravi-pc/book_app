@@ -1,12 +1,10 @@
 from sanic import Blueprint, response
-from sanic.request import Request
 from sanic_ext import validate
 from sanic_ext.extensions.openapi import openapi
 from sqlalchemy import select
-from core.model import User, Book
+from core.model import User, Book, async_session
 from core.schema import BookSchema
-from core.utils import decode_token, authorize
-from routes.user import async_session
+from core.utils import authorize
 
 book_api = Blueprint('books', url_prefix='/books')
 book_api.middleware(authorize, 'request')

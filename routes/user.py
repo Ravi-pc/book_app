@@ -4,17 +4,13 @@ from sanic_ext.extensions.openapi import openapi
 from sanic_openapi import doc
 from sqlalchemy import select
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from core.model import User, engine
+from core.model import User, engine, async_session
 from core.schema import UserDetails, UserLogin
-from core.utils import hash_password, verify_password, create_access_token, email_verification, decode_token, super_key
-
+from core.utils import hash_password, verify_password, create_access_token, decode_token, super_key
+from tasks import email_verification
 Base = declarative_base()
 
 app = Blueprint('user')
-
-
-async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 # Middleware to provide a database session to each request
@@ -54,7 +50,7 @@ async def add_user(request, body):
             await session.commit()
             await session.refresh(user)
             token = create_access_token({'user_id': user.id})
-            email_verification(token, user.email)
+            email_verification.delay(token, user.email)
         return response.json({'message': f'User registered successfully'}, status=201)
     except Exception as e:
         return response.json({"message": "Failed to register user", "error": str(e)}, status=500)

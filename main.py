@@ -23,13 +23,10 @@ app.ext.openapi.add_security_scheme(
     scheme="bearer",
     bearer_format="JWT"
 )
-#
-# app.add_route(add_user, '/register_user', methods=['Post'])
-# app.add_route(login, '/login', methods=['Post'])
-# app.add_route(verify_user, '/verify', methods=["GET"])
-# app.add_route(add_book, '/book/register', methods=["Post"])
+
 app.blueprint(user_api)
 app.blueprint(book_api)
 app.blueprint(cart_api)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

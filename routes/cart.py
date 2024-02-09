@@ -2,10 +2,9 @@ from sanic import Blueprint, response
 from sanic_ext import validate
 from sanic_ext.extensions.openapi import openapi
 from sqlalchemy import select
-from core.model import Cart, Book, CartItems, User
+from core.model import Cart, Book, CartItems, User, async_session
 from core.schema import CartItemsSchema
 from core.utils import authorize
-from routes.user import async_session
 
 cart_api = Blueprint('cart', url_prefix='/cart')
 cart_api.middleware(authorize, 'request')
@@ -18,13 +17,12 @@ cart_api.middleware(authorize, 'request')
 @validate(json=CartItemsSchema)
 async def add_book_to_cart(request, body):
     """
-    Description:
-        add_book_to_cart function is used to add a book to the cart.
-    Parameter:
-        request: Request object.
-        body: Request body containing book information.
-    Returns:
-        JSON response indicating the success or failure of adding a book to the cart.
+    Description: add_book_to_cart function is used to add a book to the cart.
+
+    Parameter: Request object
+
+    Returns: JSON response indicating the success or failure of adding a book to the cart.
+
     """
     try:
         async with async_session() as session:
@@ -69,54 +67,16 @@ async def add_book_to_cart(request, body):
         return response.json({'message': str(ex), 'status': 400})
 
 
-@cart_api.get('/get')
-@openapi.definition(response={'200': {'application/json': CartItemsSchema.model_json_schema()}}, tag='Cart',
-            secured="authorization")
-async def get_cart_details(request):
-    """
-    Description
-        It is used to get cart details.
-    Parameter:
-        request: Request object.
-    Returns:
-        JSON response containing cart details.
-    """
-    try:
-        async with async_session() as session:
-            cart_data = await session.execute(select(Cart).filter_by(user_id=request.ctx.user_id))
-            cart_data = cart_data.scalars().all()
-
-            if cart_data is None:
-                raise Exception("Mentioned cart id is not present")
-
-            total_quantity = sum(cart1.total_quantity for cart1 in cart_data)
-            if total_quantity == 0:
-                raise Exception("Cart is empty!!")
-
-            cart_info = []
-            for i in cart_data:
-                cart_data = {
-                    "price": i.total_price,
-                    "quantity": i.total_quantity
-                }
-                cart_info.append(cart_data)
-            return response.json({'message': "Cart Data found Successfully", 'status': 200, 'data': cart_data})
-    except Exception as ex:
-        return response.json({'message': str(ex), 'status': 400})
-
-
 @cart_api.get('/get/<cart_id:int>')
 @openapi.definition(response={200: {'application/json': CartItemsSchema.model_json_schema()}}, tag='Cart',
                     secured="authorization")
 async def get_all_cart_items_details(request, cart_id):
     """
-    Description:
-        This function to get details of all cart items.
-    Parameter:
-        request: Request object.
-        cart_id (int): ID of the cart.
-    Returns:
-        JSON response containing details of all cart items.
+    Description: This function to get details of all cart items.
+
+    Parameter: Request object, cart_id (int): ID of the cart.
+
+    Returns: JSON response containing details of all cart items.
     """
     try:
         async with async_session() as session:
@@ -150,12 +110,11 @@ async def get_all_cart_items_details(request, cart_id):
 @openapi.definition(tag='Cart', secured="authorization")
 async def confirm_order(request):
     """
-    Description:
-        Function to confirm the order.
-    Parameters:
-        request: Request object.
-    Returns:
-        JSON response indicating the success or failure of order confirmation.
+    Description: Function to confirm the order.
+
+    Parameters: Request object.
+
+    Returns: JSON response indicating the success or failure of order confirmation.
     """
     try:
         async with async_session() as session:

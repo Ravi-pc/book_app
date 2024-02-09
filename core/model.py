@@ -1,10 +1,13 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, String, BigInteger, Boolean, Integer, ForeignKey
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from core.settings import database_path
 
-DataBase_Url = 'postgresql+asyncpg://postgres:ra1020@localhost:5432/book_app'
+DataBase_Url = database_path
 engine = create_async_engine(DataBase_Url)
 Base = declarative_base()
+async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 class User(Base):
